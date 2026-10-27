@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Priorities</title>
+  <meta name="description" content="A to-do list you sort by dragging the most important things to the top.">
+  <meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111113" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Priorities">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="title-row">
+        <h1>Priorities</h1>
+        <button id="status" class="status" type="button" aria-label="Sync status">
+          <span class="dot"></span><span class="label"></span>
+        </button>
+      </div>
+      <p id="summary" class="summary"></p>
+
+      <form id="add-form" class="add" autocomplete="off">
+        <input id="add-input" type="text" placeholder="Add a task…" maxlength="500"
+               enterkeyhint="done" aria-label="New task">
+        <button id="add-where" type="button" class="where" aria-label="Where new tasks go"></button>
+        <button type="submit" class="add-btn" aria-label="Add task">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </form>
+    </header>
+
+    <main>
+      <ol id="active" class="list"></ol>
+
+      <div id="empty" class="empty" hidden>
+        <p class="empty-title">Nothing on the list.</p>
+        <p>Add a task above, then drag the handle
+          <svg class="inline-grip" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14M5 12h14M5 16h14"/></svg>
+          to put the most important one at the top.</p>
+      </div>
+
+      <section id="done-section" class="done-section" hidden>
+        <div class="done-head">
+          <button id="done-toggle" type="button" class="done-toggle" aria-expanded="false">
+            <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            Completed <span id="done-count" class="count"></span>
+          </button>
+          <button id="clear-done" type="button" class="link">Clear</button>
+        </div>
+        <ul id="done" class="list done-list" hidden></ul>
+      </section>
+    </main>
+  </div>
+
+  <div id="sheet" class="sheet" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="sheet-head">
+        <h2 id="sheet-title">Sync</h2>
+        <button type="button" class="icon-btn" data-close aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div id="sheet-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden role="status">
+    <span id="toast-msg"></span>
+    <button id="toast-undo" type="button">Undo</button>
+  </div>
+
+  <script defer src="config.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+  <script defer src="app.js"></script>
+</body>
+</html>

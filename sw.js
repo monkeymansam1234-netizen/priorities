@@ -1,6 +1,6 @@
 // Offline support: the app's own files are fetched fresh when online and served
 // from cache when not. Supabase traffic is never cached.
-var CACHE = "priorities-v1";
+var CACHE = "priorities-v3";
 
 var SHELL = [
   "./",
@@ -23,7 +23,9 @@ var LIBS = [
 self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(CACHE).then(function (cache) {
-      return cache.addAll(SHELL.concat(LIBS));
+      // "reload" so a new version never gets seeded with stale copies from the HTTP cache.
+      var shell = SHELL.map(function (url) { return new Request(url, { cache: "reload" }); });
+      return cache.addAll(shell.concat(LIBS));
     }).then(function () { return self.skipWaiting(); })
   );
 });
@@ -38,7 +40,9 @@ self.addEventListener("activate", function (event) {
 
 function networkFirst(request) {
   return caches.open(CACHE).then(function (cache) {
-    var network = fetch(request).then(function (response) {
+    // "no-cache" makes the browser check with the server (cheap if unchanged) instead of
+    // reusing its own HTTP cache, which GitHub Pages lets go 10 minutes stale after an update.
+    var network = fetch(request.url, { cache: "no-cache", credentials: "same-origin" }).then(function (response) {
       if (response.ok) cache.put(request, response.clone());
       return response;
     });

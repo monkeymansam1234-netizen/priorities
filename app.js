@@ -466,8 +466,11 @@
       buttons.forEach(function (b) { b.disabled = true; });
       msg.className = "msg";
       msg.textContent = kind === "up" ? "Creating account…" : "Signing in…";
+      // Without an explicit redirect, Supabase falls back to the Referer header, which browsers
+      // trim to the bare origin, so the confirmation link would land on github.io/ instead of the app.
+      var appUrl = new URL("./", location.href).href;
       var res = kind === "up"
-        ? await client.auth.signUp({ email: email, password: password })
+        ? await client.auth.signUp({ email: email, password: password, options: { emailRedirectTo: appUrl } })
         : await client.auth.signInWithPassword({ email: email, password: password });
       buttons.forEach(function (b) { b.disabled = false; });
       if (res.error) {
@@ -577,9 +580,19 @@
     if (window.matchMedia("(pointer: fine)").matches) el.addInput.focus();
   }
 
+  // Supabase email links come back with "#error_description=..." when they've expired or been used.
+  function showAuthLinkError() {
+    var hash = new URLSearchParams(location.hash.slice(1));
+    var message = hash.get("error_description");
+    if (!message) return;
+    history.replaceState(null, "", location.pathname + location.search);
+    showToast(message + ". Try signing in.", null);
+  }
+
   async function init() {
     bind();
     render();
+    showAuthLinkError();
 
     if (syncConfigured && window.supabase) {
       client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, {
